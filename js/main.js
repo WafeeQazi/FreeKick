@@ -31,19 +31,68 @@ const ball = {
 };
 
 function drawField() {
-    ctx.fillStyle = "#3e9b45";
+    ctx.fillStyle = "#7ac943";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+    for (let y = 0; y < canvas.height; y += 50) {
+        if ((y / 50) % 2 === 0) {
+            ctx.fillStyle = "#73bd3f";
+            ctx.fillRect(0, y, canvas.width, 50);
+        }
+    }
+
     ctx.strokeStyle = "white";
-    ctx.lineWidth = 4;
+    ctx.lineWidth = 3;
 
     ctx.beginPath();
+
     ctx.moveTo(0, 650);
     ctx.lineTo(canvas.width, 650);
+
+    ctx.stroke();
+
+
+    // penalty area lines
+
+    ctx.beginPath();
+
+    ctx.moveTo(250, 220);
+    ctx.lineTo(650, 220);
+
+    ctx.moveTo(250, 220);
+    ctx.lineTo(150, 450);
+
+    ctx.moveTo(650, 220);
+    ctx.lineTo(750, 450);
+
     ctx.stroke();
 }
 
+function drawShadow(x, y, size) {
+    ctx.fillStyle = "rgba(0,0,0,0.2)";
+
+    ctx.beginPath();
+
+    ctx.ellipse(
+        x,
+        y,
+        size,
+        size / 3,
+        0,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+}
+
 function drawGoal() {
+    drawShadow(
+        goal.x + goal.width / 2,
+        goal.y + goal.height + 10,
+        100
+    );
+
     ctx.strokeStyle = "white";
     ctx.lineWidth = 6;
 
@@ -73,7 +122,13 @@ function drawGoal() {
 }
 
 function drawPlayer(player, color) {
-    ctx.fillStyle = color;
+    drawShadow(
+        player.x,
+        player.y + player.radius + 25,
+        12
+    );
+
+    ctx.fillStyle = "#f2c29b";
 
     ctx.beginPath();
     ctx.arc(
@@ -85,12 +140,41 @@ function drawPlayer(player, color) {
     );
     ctx.fill();
 
+    ctx.fillStyle = color;
+
     ctx.fillRect(
-        player.x - 8,
+        player.x - 10,
         player.y + player.radius - 2,
-        16,
+        20,
         30
     );
+
+    ctx.strokeStyle = "#222";
+    ctx.lineWidth = 2;
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        player.x - 6,
+        player.y + player.radius + 28
+    );
+
+    ctx.lineTo(
+        player.x - 10,
+        player.y + player.radius + 45
+    );
+
+    ctx.moveTo(
+        player.x + 6,
+        player.y + player.radius + 28
+    );
+
+    ctx.lineTo(
+        player.x + 10,
+        player.y + player.radius + 45
+    );
+
+    ctx.stroke();
 }
 
 function drawWall() {
@@ -104,9 +188,16 @@ function drawKeeper() {
 }
 
 function drawBall() {
+    drawShadow(
+        ball.x,
+        ball.y + ball.radius + 5,
+        10
+    );
+
     ctx.fillStyle = "white";
 
     ctx.beginPath();
+
     ctx.arc(
         ball.x,
         ball.y,
@@ -114,10 +205,35 @@ function drawBall() {
         0,
         Math.PI * 2
     );
+
     ctx.fill();
 
     ctx.strokeStyle = "black";
     ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        ball.x - 5,
+        ball.y
+    );
+
+    ctx.lineTo(
+        ball.x + 5,
+        ball.y
+    );
+
+    ctx.moveTo(
+        ball.x,
+        ball.y - 5
+    );
+
+    ctx.lineTo(
+        ball.x,
+        ball.y + 5
+    );
+
     ctx.stroke();
 }
 
