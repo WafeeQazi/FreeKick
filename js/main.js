@@ -14,21 +14,70 @@ const keeper = {
     radius: 18
 };
 
+const scenarios = [
+    {
+        x: canvas.width / 2,
+        y: 590,
+        wallDistance: 300
+    },
+    {
+        x: canvas.width / 2 - 80,
+        y: 570,
+        wallDistance: 280
+    },
+    {
+        x: canvas.width / 2 + 90,
+        y: 610,
+        wallDistance: 320
+    }
+];
+
+let currentScenario = 0;
+
+const freeKick = {
+    x: scenarios[currentScenario].x,
+    y: scenarios[currentScenario].y,
+    wallDistance: scenarios[currentScenario].wallDistance
+};
+
 const wall = [];
 
-for (let i = 0; i < 5; i++) {
-    wall.push({
-        x: 370 + i * 40,
-        y: 290,
-        radius: 16
-    });
-}
-
 const ball = {
-    x: canvas.width / 2,
-    y: 590,
+    x: freeKick.x,
+    y: freeKick.y,
     radius: 12
 };
+
+function createWall() {
+    wall.length = 0;
+
+    for (let i = 0; i < 5; i++) {
+        wall.push({
+            x: freeKick.x - 80 + i * 40,
+            y: freeKick.y - freeKick.wallDistance,
+            radius: 16
+        });
+    }
+}
+
+function resetFreeKick() {
+    ball.x = freeKick.x;
+    ball.y = freeKick.y;
+
+    createWall();
+}
+
+resetFreeKick();
+
+function loadScenario(index) {
+    const scenario = scenarios[index];
+
+    freeKick.x = scenario.x;
+    freeKick.y = scenario.y;
+    freeKick.wallDistance = scenario.wallDistance;
+
+    resetFreeKick();
+}
 
 function drawField() {
     ctx.fillStyle = "#7ac943";
@@ -249,5 +298,17 @@ function gameLoop() {
     draw();
     requestAnimationFrame(gameLoop);
 }
+
+window.addEventListener("keydown", (event) => {
+    if (event.key === "r") {
+        currentScenario++;
+
+        if (currentScenario >= scenarios.length) {
+            currentScenario = 0;
+        }
+
+        loadScenario(currentScenario);
+    }
+});
 
 gameLoop();
