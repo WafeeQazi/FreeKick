@@ -1,83 +1,7 @@
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
-
-const goal = {
-    x: 250,
-    y: 60,
-    width: 400,
-    height: 90
-};
-
-const keeper = {
-    x: canvas.width / 2,
-    y: 175,
-    radius: 18
-};
-
-const scenarios = [
-    {
-        x: canvas.width / 2,
-        y: 590,
-        wallDistance: 300
-    },
-    {
-        x: canvas.width / 2 - 80,
-        y: 570,
-        wallDistance: 280
-    },
-    {
-        x: canvas.width / 2 + 90,
-        y: 610,
-        wallDistance: 320
-    }
-];
-
-let currentScenario = 0;
-
-const freeKick = {
-    x: scenarios[currentScenario].x,
-    y: scenarios[currentScenario].y,
-    wallDistance: scenarios[currentScenario].wallDistance
-};
-
-const wall = [];
-
-const ball = {
-    x: freeKick.x,
-    y: freeKick.y,
-    radius: 12
-};
-
-function createWall() {
-    wall.length = 0;
-
-    for (let i = 0; i < 5; i++) {
-        wall.push({
-            x: freeKick.x - 80 + i * 40,
-            y: freeKick.y - freeKick.wallDistance,
-            radius: 16
-        });
-    }
-}
-
-function resetFreeKick() {
-    ball.x = freeKick.x;
-    ball.y = freeKick.y;
-
-    createWall();
-}
-
-resetFreeKick();
-
-function loadScenario(index) {
-    const scenario = scenarios[index];
-
-    freeKick.x = scenario.x;
-    freeKick.y = scenario.y;
-    freeKick.wallDistance = scenario.wallDistance;
-
-    resetFreeKick();
-}
+const goal = game.goal;
+const keeper = game.keeper;
+const ball = game.ball;
+const wall = game.wall;
 
 function drawField() {
     ctx.fillStyle = "#7ac943";
@@ -99,9 +23,6 @@ function drawField() {
     ctx.lineTo(canvas.width, 650);
 
     ctx.stroke();
-
-
-    // penalty area lines
 
     ctx.beginPath();
 
@@ -157,15 +78,19 @@ function drawGoal() {
 
     for (let x = goal.x + 20; x < goal.x + goal.width; x += 20) {
         ctx.beginPath();
+
         ctx.moveTo(x, goal.y);
         ctx.lineTo(x, goal.y + goal.height);
+
         ctx.stroke();
     }
 
     for (let y = goal.y + 20; y < goal.y + goal.height; y += 20) {
         ctx.beginPath();
+
         ctx.moveTo(goal.x, y);
         ctx.lineTo(goal.x + goal.width, y);
+
         ctx.stroke();
     }
 }
@@ -180,6 +105,7 @@ function drawPlayer(player, color) {
     ctx.fillStyle = "#f2c29b";
 
     ctx.beginPath();
+
     ctx.arc(
         player.x,
         player.y,
@@ -187,6 +113,7 @@ function drawPlayer(player, color) {
         0,
         Math.PI * 2
     );
+
     ctx.fill();
 
     ctx.fillStyle = color;
@@ -259,6 +186,7 @@ function drawBall() {
 
     ctx.strokeStyle = "black";
     ctx.lineWidth = 2;
+
     ctx.stroke();
 
     ctx.beginPath();
@@ -296,18 +224,17 @@ function draw() {
 
 function gameLoop() {
     draw();
+
     requestAnimationFrame(gameLoop);
 }
 
 window.addEventListener("keydown", (event) => {
     if (event.key === "r") {
-        currentScenario++;
+        nextScenario();
+    }
 
-        if (currentScenario >= scenarios.length) {
-            currentScenario = 0;
-        }
-
-        loadScenario(currentScenario);
+    if (event.key === "q") {
+        previousScenario();
     }
 });
 
