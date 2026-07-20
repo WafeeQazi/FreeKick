@@ -18,7 +18,31 @@ const game = {
     ball: {
         x: canvas.width / 2,
         y: 590,
-        radius: 12
+        radius: 12,
+
+        moving: false,
+
+        velocityX: 0,
+        velocityY: 0,
+
+        curve: 0,
+        progress: 0
+    },
+
+    shot: {
+        aiming: false,
+
+        mouseX: 0,
+        mouseY: 0,
+
+        startX: 0,
+        startY: 0,
+
+        targetX: 0,
+        targetY: 0,
+
+        power: 0,
+        curveAmount: 0
     },
 
     wall: [],
@@ -29,7 +53,7 @@ const game = {
         wallDistance: 300
     },
 
-    scenarios: [
+    freeKickPositions: [
         {
             x: canvas.width / 2,
             y: 590,
@@ -50,5 +74,7 @@ const game = {
         }
     ],
 
-    currentScenario: 0
+    positionBag: [],
+
+    currentPosition: null
 };
