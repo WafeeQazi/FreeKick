@@ -12,21 +12,27 @@ const game = {
     keeper: {
         x: canvas.width / 2,
         y: 175,
-        radius: 18
+        radius: 18,
+        diving: false,
+        targetX: canvas.width / 2,
+        speed: 6
     },
 
     ball: {
         x: canvas.width / 2,
         y: 590,
-        radius: 12,
+        z: 0,
 
-        moving: false,
+        radius: 12,
 
         velocityX: 0,
         velocityY: 0,
+        velocityZ: 0,
 
-        curve: 0,
-        progress: 0
+        spin: 0,
+
+        moving: false,
+        rotating: 0
     },
 
     shot: {
@@ -42,7 +48,14 @@ const game = {
         targetY: 0,
 
         power: 0,
-        curveAmount: 0
+        maxPower: 18
+    },
+
+    physics: {
+        gravity: 0.28,
+        airResistance: 0.995,
+        groundFriction: 0.985,
+        spinStrength: 0
     },
 
     wall: [],
@@ -54,27 +67,24 @@ const game = {
     },
 
     freeKickPositions: [
-        {
-            x: canvas.width / 2,
-            y: 590,
-            wallDistance: 300,
-            wallPlayers: 5
-        },
-        {
-            x: canvas.width / 2 - 80,
-            y: 570,
-            wallDistance: 280,
-            wallPlayers: 5
-        },
-        {
-            x: canvas.width / 2 + 90,
-            y: 610,
-            wallDistance: 320,
-            wallPlayers: 5
-        }
+        { x: canvas.width / 2, y: 590, wallDistance: 300, wallPlayers: 5 },
+        { x: canvas.width / 2 - 80, y: 570, wallDistance: 280, wallPlayers: 5 },
+        { x: canvas.width / 2 + 90, y: 610, wallDistance: 320, wallPlayers: 5 },
+        { x: canvas.width / 2 - 140, y: 600, wallDistance: 315, wallPlayers: 4 },
+        { x: canvas.width / 2 + 140, y: 600, wallDistance: 315, wallPlayers: 4 },
+        { x: canvas.width / 2, y: 545, wallDistance: 255, wallPlayers: 6 },
+        { x: canvas.width / 2, y: 625, wallDistance: 340, wallPlayers: 5 },
+        { x: canvas.width / 2 - 110, y: 560, wallDistance: 290, wallPlayers: 5 },
+        { x: canvas.width / 2 + 110, y: 560, wallDistance: 290, wallPlayers: 5 },
+        { x: canvas.width / 2, y: 575, wallDistance: 275, wallPlayers: 5 }
     ],
 
     positionBag: [],
 
-    currentPosition: null
+    currentPosition: null,
+
+    score: {
+        goals: 0,
+        shots: 0
+    }
 };
