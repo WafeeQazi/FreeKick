@@ -10,11 +10,11 @@ function refillPositionBag() {
 
 function shufflePositionBag() {
     for (let i = game.positionBag.length - 1; i > 0; i--) {
-        const randomIndex = Math.floor(Math.random() * (i + 1));
+        const j = Math.floor(Math.random() * (i + 1));
 
         const temp = game.positionBag[i];
-        game.positionBag[i] = game.positionBag[randomIndex];
-        game.positionBag[randomIndex] = temp;
+        game.positionBag[i] = game.positionBag[j];
+        game.positionBag[j] = temp;
     }
 }
 
@@ -35,20 +35,40 @@ function createWall() {
 
     const position = game.currentPosition;
 
-    const players = position.wallPlayers;
     const spacing = 40;
 
     const startX =
         game.freeKick.x -
-        ((players - 1) * spacing) / 2;
+        ((position.wallPlayers - 1) * spacing) / 2;
 
-    for (let i = 0; i < players; i++) {
+    for (let i = 0; i < position.wallPlayers; i++) {
         game.wall.push({
             x: startX + i * spacing,
             y: game.freeKick.y - game.freeKick.wallDistance,
             radius: 16
         });
     }
+}
+
+function resetBall() {
+    game.ball.x = game.freeKick.x;
+    game.ball.y = game.freeKick.y;
+    game.ball.z = 0;
+
+    game.ball.velocityX = 0;
+    game.ball.velocityY = 0;
+    game.ball.velocityZ = 0;
+
+    game.ball.spin = 0;
+    game.ball.rotating = 0;
+
+    game.ball.moving = false;
+}
+
+function resetKeeper() {
+    game.keeper.x = canvas.width / 2;
+    game.keeper.targetX = canvas.width / 2;
+    game.keeper.diving = false;
 }
 
 function loadRandomFreeKick() {
@@ -58,17 +78,13 @@ function loadRandomFreeKick() {
     game.freeKick.y = position.y;
     game.freeKick.wallDistance = position.wallDistance;
 
-    game.ball.x = game.freeKick.x;
-    game.ball.y = game.freeKick.y;
-
-    game.ball.moving = false;
-    game.ball.velocityX = 0;
-    game.ball.velocityY = 0;
-
-    game.ball.curve = 0;
-    game.ball.progress = 0;
-
     createWall();
+    resetBall();
+    resetKeeper();
+}
+
+function resetAfterShot() {
+    loadRandomFreeKick();
 }
 
 refillPositionBag();
