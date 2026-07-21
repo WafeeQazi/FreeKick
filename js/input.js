@@ -1,4 +1,4 @@
-function getMousePosition(event) {
+function updateMousePosition(event) {
     const rect = canvas.getBoundingClientRect();
 
     game.shot.mouseX = event.clientX - rect.left;
@@ -9,24 +9,22 @@ function isMouseOverBall() {
     const dx = game.shot.mouseX - game.ball.x;
     const dy = game.shot.mouseY - game.ball.y;
 
-    const distance = Math.sqrt(
-        dx * dx + dy * dy
-    );
-
-    return distance <= game.ball.radius + 8;
+    return Math.sqrt(dx * dx + dy * dy) <= game.ball.radius + 10;
 }
 
 canvas.addEventListener("mousemove", (event) => {
-    getMousePosition(event);
+    updateMousePosition(event);
 
-    if (game.shot.aiming) {
-        game.shot.targetX = game.shot.mouseX;
-        game.shot.targetY = game.shot.mouseY;
+    if (!game.shot.aiming) {
+        return;
     }
+
+    game.shot.targetX = game.shot.mouseX;
+    game.shot.targetY = game.shot.mouseY;
 });
 
 canvas.addEventListener("mousedown", (event) => {
-    getMousePosition(event);
+    updateMousePosition(event);
 
     if (game.ball.moving) {
         return;
@@ -41,12 +39,11 @@ canvas.addEventListener("mousedown", (event) => {
     game.shot.startX = game.ball.x;
     game.shot.startY = game.ball.y;
 
-    game.shot.targetX = game.shot.mouseX;
-    game.shot.targetY = game.shot.mouseY;
+    game.shot.targetX = game.ball.x;
+    game.shot.targetY = game.ball.y;
 });
 
 canvas.addEventListener("mouseup", () => {
-
     if (!game.shot.aiming) {
         return;
     }
