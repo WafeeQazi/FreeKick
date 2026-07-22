@@ -13,9 +13,27 @@ const game = {
         x: canvas.width / 2,
         y: 175,
         radius: 18,
-        diving: false,
+
+        velocityX: 0,
         targetX: canvas.width / 2,
-        speed: 6
+        acceleration: 0.35,
+        maxSpeed: 6,
+
+        state: "idle",
+        reactionTime: 220,
+        reactionTimer: 0,
+        reacted: false,
+
+        predictedX: canvas.width / 2,
+
+        diving: false,
+        diveDirection: 0,
+        diveSpeed: 10,
+        diveDuration: 20,
+        diveTimer: 0,
+
+        reach: 42,
+        hasTouchedBall: false
     },
 
     ball: {
@@ -85,6 +103,7 @@ const game = {
 
     score: {
         goals: 0,
-        shots: 0
+        shots: 0,
+        saves: 0
     }
 };
