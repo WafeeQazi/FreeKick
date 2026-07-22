@@ -10,7 +10,9 @@ function refillPositionBag() {
 
 function shufflePositionBag() {
     for (let i = game.positionBag.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
+        const j = Math.floor(
+            Math.random() * (i + 1)
+        );
 
         const temp = game.positionBag[i];
         game.positionBag[i] = game.positionBag[j];
@@ -25,7 +27,8 @@ function getNextFreeKickPosition() {
 
     const index = game.positionBag.pop();
 
-    game.currentPosition = game.freeKickPositions[index];
+    game.currentPosition =
+        game.freeKickPositions[index];
 
     return game.currentPosition;
 }
@@ -51,24 +54,46 @@ function createWall() {
 }
 
 function resetBall() {
-    game.ball.x = game.freeKick.x;
-    game.ball.y = game.freeKick.y;
-    game.ball.z = 0;
+    const ball = game.ball;
 
-    game.ball.velocityX = 0;
-    game.ball.velocityY = 0;
-    game.ball.velocityZ = 0;
+    ball.x = game.freeKick.x;
+    ball.y = game.freeKick.y;
+    ball.z = 0;
 
-    game.ball.spin = 0;
-    game.ball.rotating = 0;
+    ball.velocityX = 0;
+    ball.velocityY = 0;
+    ball.velocityZ = 0;
 
-    game.ball.moving = false;
+    ball.spin = 0;
+    ball.rotating = 0;
+
+    ball.moving = false;
+
+    game.shot.aiming = false;
+    game.shot.power = 0;
 }
 
 function resetKeeper() {
-    game.keeper.x = canvas.width / 2;
-    game.keeper.targetX = canvas.width / 2;
-    game.keeper.diving = false;
+    const keeper = game.keeper;
+
+    keeper.x = canvas.width / 2;
+    keeper.y = 175;
+
+    keeper.velocityX = 0;
+    keeper.targetX = canvas.width / 2;
+
+    keeper.state = "idle";
+
+    keeper.reacted = false;
+    keeper.reactionTimer = 0;
+
+    keeper.diving = false;
+    keeper.diveDirection = 0;
+    keeper.diveTimer = 0;
+
+    keeper.hasTouchedBall = false;
+
+    keeper.predictedX = canvas.width / 2;
 }
 
 function loadRandomFreeKick() {
@@ -76,7 +101,8 @@ function loadRandomFreeKick() {
 
     game.freeKick.x = position.x;
     game.freeKick.y = position.y;
-    game.freeKick.wallDistance = position.wallDistance;
+    game.freeKick.wallDistance =
+        position.wallDistance;
 
     createWall();
     resetBall();
