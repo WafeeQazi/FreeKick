@@ -1,60 +1,126 @@
 function updateMousePosition(event) {
     const rect = canvas.getBoundingClientRect();
 
-    game.shot.mouseX = event.clientX - rect.left;
-    game.shot.mouseY = event.clientY - rect.top;
+    game.shot.mouseX =
+        event.clientX - rect.left;
+
+    game.shot.mouseY =
+        event.clientY - rect.top;
 }
 
 function isMouseOverBall() {
-    const dx = game.shot.mouseX - game.ball.x;
-    const dy = game.shot.mouseY - game.ball.y;
+    const dx =
+        game.shot.mouseX -
+        game.ball.x;
 
-    return Math.sqrt(dx * dx + dy * dy) <= game.ball.radius + 10;
+    const dy =
+        game.shot.mouseY -
+        game.ball.y;
+
+    const distance =
+        Math.sqrt(
+            dx * dx +
+            dy * dy
+        );
+
+    return (
+        distance <=
+        game.ball.radius + 12
+    );
 }
 
-canvas.addEventListener("mousemove", (event) => {
-    updateMousePosition(event);
-
-    if (!game.shot.aiming) {
-        return;
+function canPlayerShoot() {
+    if (!game.ball.canShoot) {
+        return false;
     }
-
-    game.shot.targetX = game.shot.mouseX;
-    game.shot.targetY = game.shot.mouseY;
-});
-
-canvas.addEventListener("mousedown", (event) => {
-    updateMousePosition(event);
 
     if (game.ball.moving) {
-        return;
+        return false;
     }
 
-    if (!isMouseOverBall()) {
-        return;
+    return true;
+}
+
+canvas.addEventListener(
+    "mousemove",
+    (event) => {
+
+        updateMousePosition(event);
+
+        if (!game.shot.aiming) {
+            return;
+        }
+
+        game.shot.targetX =
+            game.shot.mouseX;
+
+        game.shot.targetY =
+            game.shot.mouseY;
     }
+);
 
-    game.shot.aiming = true;
+canvas.addEventListener(
+    "mousedown",
+    (event) => {
 
-    game.shot.startX = game.ball.x;
-    game.shot.startY = game.ball.y;
+        updateMousePosition(event);
 
-    game.shot.targetX = game.ball.x;
-    game.shot.targetY = game.ball.y;
-});
+        if (!canPlayerShoot()) {
+            return;
+        }
 
-canvas.addEventListener("mouseup", () => {
-    if (!game.shot.aiming) {
-        return;
+        if (!isMouseOverBall()) {
+            return;
+        }
+
+        game.shot.aiming = true;
+
+        game.shot.startX =
+            game.ball.x;
+
+        game.shot.startY =
+            game.ball.y;
+
+        game.shot.targetX =
+            game.ball.x;
+
+        game.shot.targetY =
+            game.ball.y;
     }
+);
 
-    game.shot.aiming = false;
+canvas.addEventListener(
+    "mouseup",
+    () => {
 
-    if (
-        game.ball.moving
-    ) {
-        return;
+        if (!game.shot.aiming) {
+            return;
+        }
+
+        game.shot.aiming = false;
+
+        if (!canPlayerShoot()) {
+            return;
+        }
+
+        const dx =
+            game.shot.startX -
+            game.shot.targetX;
+
+        const dy =
+            game.shot.startY -
+            game.shot.targetY;
+
+        const distance =
+            Math.sqrt(
+                dx * dx +
+                dy * dy
+            );
+
+        if (distance < 5) {
+            return;
+        }
+
+        calculateShot();
     }
-
-    calculateShot();
-});
+);
