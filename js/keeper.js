@@ -12,19 +12,20 @@ function resetKeeper() {
     keeper.reacted = false;
     keeper.reactionTimer = 0;
 
+    keeper.predictedX = canvas.width / 2;
+
     keeper.diving = false;
     keeper.diveDirection = 0;
     keeper.diveTimer = 0;
 
     keeper.hasTouchedBall = false;
-
-    keeper.predictedX = canvas.width / 2;
 }
 
 function updateKeeper() {
     const keeper = game.keeper;
 
     switch (keeper.state) {
+
         case "idle":
             updateIdle();
             break;
@@ -45,10 +46,6 @@ function updateKeeper() {
             updateRecovery();
             break;
     }
-
-    if (game.ball.moving) {
-        checkKeeperSave();
-    }
 }
 
 function updateIdle() {
@@ -56,10 +53,12 @@ function updateIdle() {
 
     keeper.velocityX = 0;
 
-    if (game.ball.moving) {
-        keeper.state = "reaction";
-        keeper.reactionTimer = 0;
+    if (!game.ball.moving) {
+        return;
     }
+
+    keeper.state = "reaction";
+    keeper.reactionTimer = 0;
 }
 
 function updateReaction() {
@@ -72,7 +71,10 @@ function updateReaction() {
             keeper.reactionTime / 16.67
         );
 
-    if (keeper.reactionTimer < reactionFrames) {
+    if (
+        keeper.reactionTimer <
+        reactionFrames
+    ) {
         return;
     }
 
@@ -84,11 +86,18 @@ function updateReaction() {
 }
 
 function predictShot() {
+
     const keeper = game.keeper;
     const ball = game.ball;
 
-    if (ball.velocityY >= 0) {
-        keeper.predictedX = canvas.width / 2;
+    if (ball.velocityY >= -0.1) {
+
+        keeper.predictedX =
+            canvas.width / 2;
+
+        keeper.targetX =
+            keeper.predictedX;
+
         return;
     }
 
@@ -100,8 +109,14 @@ function predictShot() {
         ball.x +
         ball.velocityX * timeToGoal;
 
+    predictedX +=
+        ball.spin *
+        timeToGoal *
+        10;
+
     const minX =
-        game.goal.x + keeper.radius;
+        game.goal.x +
+        keeper.radius;
 
     const maxX =
         game.goal.x +
@@ -113,40 +128,66 @@ function predictShot() {
         Math.min(maxX, predictedX)
     );
 
-    keeper.predictedX = predictedX;
-    keeper.targetX = predictedX;
+    keeper.predictedX =
+        predictedX;
+
+    keeper.targetX =
+        predictedX;
 }
 
 function updateTracking() {
     predictShot();
 
     const keeper = game.keeper;
+    const ball = game.ball;
+
+    if (!ball.moving) {
+        keeper.state = "recovering";
+        return;
+    }
 
     const distance =
         Math.abs(
-            keeper.targetX - keeper.x
+            keeper.targetX -
+            keeper.x
         );
 
     const timeNeeded =
-        distance / keeper.maxSpeed;
-
-    const ball = game.ball;
+        distance /
+        Math.max(
+            keeper.maxSpeed,
+            0.01
+        );
 
     const timeRemaining =
-        (game.goal.y - ball.y) /
-        Math.abs(ball.velocityY);
+        Math.abs(
+            (game.goal.y - ball.y) /
+            Math.min(
+                ball.velocityY,
+                -0.01
+            )
+        );
 
     if (
         distance > keeper.reach &&
-        timeNeeded > timeRemaining * 0.8
+        timeNeeded >
+        timeRemaining * 0.8
     ) {
         keeper.state = "diving";
+
         keeper.diving = true;
 
         keeper.diveDirection =
             Math.sign(
-                keeper.targetX - keeper.x
+                keeper.targetX -
+                keeper.x
             );
+
+        if (
+            keeper.diveDirection === 0
+        ) {
+            keeper.diveDirection = 1;
+        }
 
         return;
     }
@@ -155,14 +196,17 @@ function updateTracking() {
 }
 
 function moveKeeper() {
+
     const keeper = game.keeper;
 
     const difference =
-        keeper.targetX - keeper.x;
+        keeper.targetX -
+        keeper.x;
 
     if (
         Math.abs(difference) < 1
     ) {
+
         keeper.velocityX *= 0.75;
 
         if (
@@ -173,7 +217,11 @@ function moveKeeper() {
             keeper.velocityX = 0;
         }
 
-        keeper.x += keeper.velocityX;
+        keeper.x +=
+            keeper.velocityX;
+
+        clampKeeper();
+
         return;
     }
 
@@ -189,27 +237,14 @@ function moveKeeper() {
         )
     );
 
-    keeper.x += keeper.velocityX;
+    keeper.x +=
+        keeper.velocityX;
 
-    const leftLimit =
-        game.goal.x +
-        keeper.radius;
-
-    const rightLimit =
-        game.goal.x +
-        game.goal.width -
-        keeper.radius;
-
-    keeper.x = Math.max(
-        leftLimit,
-        Math.min(
-            rightLimit,
-            keeper.x
-        )
-    );
+    clampKeeper();
 }
 
 function updateDiving() {
+
     const keeper = game.keeper;
 
     keeper.x +=
@@ -218,34 +253,24 @@ function updateDiving() {
 
     keeper.diveTimer++;
 
-    const leftLimit =
-        game.goal.x +
-        keeper.radius;
-
-    const rightLimit =
-        game.goal.x +
-        game.goal.width -
-        keeper.radius;
-
-    keeper.x = Math.max(
-        leftLimit,
-        Math.min(
-            rightLimit,
-            keeper.x
-        )
-    );
+    clampKeeper();
 
     if (
         keeper.diveTimer >=
         keeper.diveDuration
     ) {
+
         keeper.diving = false;
+
         keeper.diveTimer = 0;
-        keeper.state = "recovering";
+
+        keeper.state =
+            "recovering";
     }
 }
 
 function updateRecovery() {
+
     const keeper = game.keeper;
 
     keeper.targetX =
@@ -263,149 +288,30 @@ function updateRecovery() {
     }
 }
 
-function checkKeeperSave() {
-    const keeper = game.keeper;
-
-    if (!game.ball.moving) {
-        return;
-    }
-
-    if (keeper.hasTouchedBall) {
-        return;
-    }
-
-    const dx =
-        game.ball.x - keeper.x;
-
-    const visualBallY =
-        game.ball.y - game.ball.z;
-
-    const dy =
-        visualBallY -
-        keeper.y;
-
-    const distance = Math.sqrt(
-        dx * dx +
-        dy * dy
-    );
-
-    if (
-        distance >
-        keeper.reach
-    ) {
-        return;
-    }
-    
-    keeper.hasTouchedBall = true;
-
-    game.score.saves++;
-
-    if (canCatchShot()) {
-        catchBall();
-    } else {
-        deflectBall();
-    }
-}
-
-function deflectBall() {
-    const keeper = game.keeper;
-
-    const dx =
-        game.ball.x - keeper.x;
-
-    const dy =
-        (game.ball.y - game.ball.z) -
-        keeper.y;
-
-    const distance =
-        Math.max(
-            0.001,
-            Math.sqrt(
-                dx * dx +
-                dy * dy
-            )
-        );
-
-    const normalX =
-        dx / distance;
-
-    const normalY =
-        dy / distance;
-
-    const incomingSpeed =
-        Math.sqrt(
-            game.ball.velocityX *
-            game.ball.velocityX +
-            game.ball.velocityY *
-            game.ball.velocityY
-        );
-
-    if (incomingSpeed < 8) {
-        game.ball.velocityX = 0;
-        game.ball.velocityY = 0;
-        game.ball.velocityZ = 0;
-        game.ball.moving = false;
-        return;
-    }
-
-    game.ball.velocityX =
-        normalX *
-        incomingSpeed *
-        0.65;
-
-    game.ball.velocityY =
-        Math.abs(normalY) *
-        incomingSpeed *
-        0.8;
-
-    game.ball.velocityZ *= 0.55;
-}
-
-function catchBall() {
-    game.ball.moving = false;
-
-    game.ball.velocityX = 0;
-    game.ball.velocityY = 0;
-    game.ball.velocityZ = 0;
-
-    game.keeper.state = "recovering";
-
-    setTimeout(() => {
-        resetAfterShot();
-    }, 800);
-}
-
-function canCatchShot() {
-    const speed = Math.sqrt(
-        game.ball.velocityX * game.ball.velocityX +
-        game.ball.velocityY * game.ball.velocityY
-    );
-
-    return speed < 8;
-}
-
 function clampKeeper() {
+
     const keeper = game.keeper;
 
-    const minX =
+    const leftLimit =
         game.goal.x +
         keeper.radius;
 
-    const maxX =
+    const rightLimit =
         game.goal.x +
         game.goal.width -
         keeper.radius;
 
-    if (keeper.x < minX) {
-        keeper.x = minX;
+    if (keeper.x < leftLimit) {
+        keeper.x = leftLimit;
     }
 
-    if (keeper.x > maxX) {
-        keeper.x = maxX;
+    if (keeper.x > rightLimit) {
+        keeper.x = rightLimit;
     }
 }
 
 function keeperResetAfterPlay() {
+
     const keeper = game.keeper;
 
     keeper.state = "idle";
@@ -414,17 +320,17 @@ function keeperResetAfterPlay() {
 
     keeper.reactionTimer = 0;
 
-    keeper.diving = false;
-
-    keeper.diveDirection = 0;
-
-    keeper.diveTimer = 0;
-
-    keeper.hasTouchedBall = false;
+    keeper.predictedX =
+        canvas.width / 2;
 
     keeper.targetX =
         canvas.width / 2;
 
-    keeper.predictedX =
-        canvas.width / 2;
+    keeper.velocityX = 0;
+
+    keeper.diving = false;
+    keeper.diveDirection = 0;
+    keeper.diveTimer = 0;
+
+    keeper.hasTouchedBall = false;
 }
