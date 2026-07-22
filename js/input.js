@@ -50,5 +50,11 @@ canvas.addEventListener("mouseup", () => {
 
     game.shot.aiming = false;
 
+    if (
+        game.ball.moving
+    ) {
+        return;
+    }
+
     calculateShot();
 });
