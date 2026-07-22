@@ -106,7 +106,98 @@ function drawWall() {
 }
 
 function drawKeeper() {
-    drawPlayer(keeper, "#ffcc00");
+    const x = keeper.x;
+    const y = keeper.y;
+
+    const diving = keeper.diving;
+
+    drawShadow(
+        x,
+        y + 55,
+        diving ? 22 : 18,
+        0.25
+    );
+
+    ctx.save();
+
+    ctx.translate(x, y);
+
+    if (diving) {
+        ctx.rotate(
+            keeper.diveDirection * -0.35
+        );
+    }
+
+    ctx.fillStyle = "#f2c29b";
+
+    ctx.beginPath();
+    ctx.arc(
+        0,
+        -5,
+        16,
+        0,
+        Math.PI * 2
+    );
+    ctx.fill();
+
+    ctx.fillStyle = "#e60000";
+
+    ctx.fillRect(
+        -15,
+        12,
+        30,
+        38
+    );
+
+    ctx.strokeStyle = "#f2c29b";
+    ctx.lineWidth = 8;
+
+    ctx.beginPath();
+
+    ctx.moveTo(-12, 20);
+    ctx.lineTo(-32, 35);
+
+    ctx.moveTo(12, 20);
+    ctx.lineTo(32, 35);
+
+    ctx.stroke();
+
+    ctx.fillStyle = "white";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        -34,
+        37,
+        7,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.arc(
+        34,
+        37,
+        7,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
+    ctx.strokeStyle = "#222";
+    ctx.lineWidth = 5;
+
+    ctx.beginPath();
+
+    ctx.moveTo(-8, 50);
+    ctx.lineTo(-14, 72);
+
+    ctx.moveTo(8, 50);
+    ctx.lineTo(14, 72);
+
+    ctx.stroke();
+
+    ctx.restore();
 }
 
 function drawAimGuide() {
