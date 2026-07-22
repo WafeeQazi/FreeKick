@@ -33,7 +33,40 @@ const game = {
         diveTimer: 0,
 
         reach: 42,
-        hasTouchedBall: false
+        hasTouchedBall: false,
+
+        bodyHitboxes: [
+            {
+                name: "head",
+                xOffset: 0,
+                yOffset: -5,
+                radius: 16
+            },
+            {
+                name: "chest",
+                xOffset: 0,
+                yOffset: 20,
+                radius: 18
+            },
+            {
+                name: "leftGlove",
+                xOffset: -28,
+                yOffset: 30,
+                radius: 10
+            },
+            {
+                name: "rightGlove",
+                xOffset: 28,
+                yOffset: 30,
+                radius: 10
+            },
+            {
+                name: "legs",
+                xOffset: 0,
+                yOffset: 50,
+                radius: 14
+            }
+        ]
     },
 
     ball: {
@@ -50,6 +83,7 @@ const game = {
         spin: 0,
 
         moving: false,
+        canShoot: true,
         rotating: 0
     },
 
@@ -73,10 +107,43 @@ const game = {
         gravity: 0.28,
         airResistance: 0.995,
         groundFriction: 0.985,
-        spinStrength: 0
+
+        spinStrength: 0,
+
+        keeperBounce: 0.65,
+        wallBounce: 0.45,
+        postBounce: 0.8,
+        crossbarBounce: 0.75,
+
+        spinDecay: 0.98,
+
+        minRollingSpeed: 0.05,
+
+        collisionPush: 1.2
     },
 
     wall: [],
+
+    wallHitboxes: [
+        {
+            name: "head",
+            xOffset: 0,
+            yOffset: 0,
+            radius: 18
+        },
+        {
+            name: "body",
+            xOffset: 0,
+            yOffset: 25,
+            radius: 22
+        },
+        {
+            name: "legs",
+            xOffset: 0,
+            yOffset: 55,
+            radius: 18
+        }
+    ],
 
     freeKick: {
         x: canvas.width / 2,
