@@ -45,11 +45,25 @@ function createWall() {
         ((position.wallPlayers - 1) * spacing) / 2;
 
     for (let i = 0; i < position.wallPlayers; i++) {
-        game.wall.push({
+
+        const player = {
             x: startX + i * spacing,
             y: game.freeKick.y - game.freeKick.wallDistance,
-            radius: 16
-        });
+            radius: 16,
+
+            hitboxes: []
+        };
+
+        for (const hitbox of game.wallHitboxes) {
+            player.hitboxes.push({
+                name: hitbox.name,
+                xOffset: hitbox.xOffset,
+                yOffset: hitbox.yOffset,
+                radius: hitbox.radius
+            });
+        }
+
+        game.wall.push(player);
     }
 }
 
@@ -68,9 +82,15 @@ function resetBall() {
     ball.rotating = 0;
 
     ball.moving = false;
+    ball.canShoot = true;
 
     game.shot.aiming = false;
     game.shot.power = 0;
+
+    game.shot.startX = ball.x;
+    game.shot.startY = ball.y;
+    game.shot.targetX = ball.x;
+    game.shot.targetY = ball.y;
 }
 
 function resetKeeper() {
