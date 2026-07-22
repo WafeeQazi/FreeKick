@@ -26,10 +26,8 @@ function calculateShot() {
 
     game.ball.velocityZ = power * 0.25;
 
-    const curlAmount =
+    game.ball.spin =
         (game.shot.targetX - game.shot.startX) * 0.002;
-
-    game.ball.spin = curlAmount;
 
     game.ball.moving = true;
 }
@@ -42,6 +40,7 @@ function updateBall() {
     applyPhysics();
 
     checkWallCollision();
+    checkKeeperCollision();
     checkGoalPosts();
     checkCrossbar();
     checkGoal();
@@ -57,6 +56,7 @@ function applyPhysics() {
 
     game.ball.velocityX *= game.physics.airResistance;
     game.ball.velocityY *= game.physics.airResistance;
+
     game.ball.velocityX += game.ball.spin;
     game.ball.spin *= 0.98;
 
@@ -82,9 +82,68 @@ function applyPhysics() {
 
     game.ball.rotating +=
         Math.sqrt(
-            game.ball.velocityX * game.ball.velocityX +
-            game.ball.velocityY * game.ball.velocityY
+            game.ball.velocityX *
+            game.ball.velocityX +
+            game.ball.velocityY *
+            game.ball.velocityY
         ) * 0.2;
+}
+
+function checkKeeperCollision() {
+    const keeper = game.keeper;
+
+    if (keeper.hasTouchedBall) {
+        return;
+    }
+
+    const dx = game.ball.x - keeper.x;
+
+    const dy =
+        (game.ball.y - game.ball.z) -
+        keeper.y;
+
+    const distance = Math.sqrt(
+        dx * dx +
+        dy * dy
+    );
+
+    const hitDistance =
+        game.ball.radius +
+        keeper.radius;
+
+    if (distance > hitDistance) {
+        return;
+    }
+
+    keeper.hasTouchedBall = true;
+
+    const speed = Math.sqrt(
+        game.ball.velocityX *
+        game.ball.velocityX +
+        game.ball.velocityY *
+        game.ball.velocityY
+    );
+
+    game.score.saves++;
+
+    if (speed < 8) {
+        game.ball.velocityX = 0;
+        game.ball.velocityY = 0;
+        game.ball.velocityZ = 0;
+        game.ball.moving = false;
+        return;
+    }
+
+    const normalX = dx / distance;
+    const normalY = dy / distance;
+
+    game.ball.velocityX =
+        normalX * speed * 0.55;
+
+    game.ball.velocityY =
+        normalY * speed * 0.55;
+
+    game.ball.velocityZ *= 0.5;
 }
 
 function checkWallCollision() {
@@ -92,10 +151,19 @@ function checkWallCollision() {
         const dx = game.ball.x - player.x;
         const dy = game.ball.y - player.y;
 
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        const minDistance = game.ball.radius + player.radius;
+        const distance = Math.sqrt(
+            dx * dx +
+            dy * dy
+        );
 
-        if (distance >= minDistance || distance === 0) {
+        const minDistance =
+            game.ball.radius +
+            player.radius;
+
+        if (
+            distance >= minDistance ||
+            distance === 0
+        ) {
             continue;
         }
 
@@ -106,13 +174,17 @@ function checkWallCollision() {
             game.ball.velocityX * normalX +
             game.ball.velocityY * normalY;
 
-        game.ball.velocityX -= 2 * dot * normalX;
-        game.ball.velocityY -= 2 * dot * normalY;
+        game.ball.velocityX -=
+            2 * dot * normalX;
+
+        game.ball.velocityY -=
+            2 * dot * normalY;
 
         game.ball.velocityX *= 0.55;
         game.ball.velocityY *= 0.55;
 
-        const overlap = minDistance - distance;
+        const overlap =
+            minDistance - distance;
 
         game.ball.x += normalX * overlap;
         game.ball.y += normalY * overlap;
@@ -138,14 +210,17 @@ function checkPostCollision(post) {
     const dx = game.ball.x - post.x;
     const dy = game.ball.y - post.y;
 
-    const distance = Math.sqrt(dx * dx + dy * dy);
+    const distance = Math.sqrt(
+        dx * dx +
+        dy * dy
+    );
+
     const postRadius = 7;
 
-    if (distance === 0) {
-        return;
-    }
-
-    if (distance > game.ball.radius + postRadius) {
+    if (
+        distance === 0 ||
+        distance > game.ball.radius + postRadius
+    ) {
         return;
     }
 
@@ -156,8 +231,11 @@ function checkPostCollision(post) {
         game.ball.velocityX * normalX +
         game.ball.velocityY * normalY;
 
-    game.ball.velocityX -= 2 * dot * normalX;
-    game.ball.velocityY -= 2 * dot * normalY;
+    game.ball.velocityX -=
+        2 * dot * normalX;
+
+    game.ball.velocityY -=
+        2 * dot * normalY;
 
     game.ball.velocityX *= 0.8;
     game.ball.velocityY *= 0.8;
@@ -216,9 +294,12 @@ function checkGoal() {
 
 function checkOutOfBounds() {
     const speed = Math.sqrt(
-        game.ball.velocityX * game.ball.velocityX +
-        game.ball.velocityY * game.ball.velocityY +
-        game.ball.velocityZ * game.ball.velocityZ
+        game.ball.velocityX *
+        game.ball.velocityX +
+        game.ball.velocityY *
+        game.ball.velocityY +
+        game.ball.velocityZ *
+        game.ball.velocityZ
     );
 
     if (
