@@ -124,3 +124,24 @@ canvas.addEventListener(
         calculateShot();
     }
 );
+
+window.addEventListener("keydown", (event) => {
+
+    if (event.code !== "Space") {
+        return;
+    }
+
+    if (!game.round.finished) {
+        return;
+    }
+
+    game.round.currentShot = 1;
+    game.round.goals = 0;
+    game.round.saves = 0;
+    game.round.misses = 0;
+    game.round.finished = false;
+
+    game.ball.canShoot = true;
+
+    loadRandomFreeKick();
+});
