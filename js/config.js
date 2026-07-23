@@ -172,5 +172,21 @@ const game = {
         goals: 0,
         shots: 0,
         saves: 0
+    },
+
+    round: {
+        currentShot: 1,
+        maxShots: 10,
+        goals: 0,
+        saves: 0,
+        misses: 0,
+        finished: false
+    },
+
+    message: {
+        text: "",
+        color: "white",
+        timer: 0,
+        duration: 90
     }
 };
