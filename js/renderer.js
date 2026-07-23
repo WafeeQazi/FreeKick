@@ -549,6 +549,166 @@ function drawBall() {
     ctx.restore();
 }
 
+function drawHUD() {
+
+    ctx.fillStyle = "rgba(0,0,0,0.55)";
+    ctx.fillRect(15, 15, 220, 120);
+
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(15, 15, 220, 120);
+
+    ctx.fillStyle = "white";
+    ctx.font = "bold 22px Arial";
+
+    ctx.fillText(
+        `Shot ${Math.min(game.round.currentShot, game.round.maxShots)}/${game.round.maxShots}`,
+        28,
+        45
+    );
+
+    ctx.font = "18px Arial";
+
+    ctx.fillStyle = "#4cff4c";
+    ctx.fillText(
+        `Goals: ${game.round.goals}`,
+        28,
+        75
+    );
+
+    ctx.fillStyle = "#66b3ff";
+    ctx.fillText(
+        `Saves: ${game.round.saves}`,
+        28,
+        100
+    );
+
+    ctx.fillStyle = "#ff6666";
+    ctx.fillText(
+        `Misses: ${game.round.misses}`,
+        28,
+        125
+    );
+}
+
+function drawMessage() {
+
+    if (game.message.timer <= 0) {
+        return;
+    }
+
+    const alpha =
+        Math.min(
+            1,
+            game.message.timer / 25
+        );
+
+    ctx.save();
+
+    ctx.globalAlpha = alpha;
+
+    ctx.font = "bold 64px Arial";
+
+    ctx.textAlign = "center";
+
+    ctx.fillStyle =
+        game.message.color;
+
+    ctx.fillText(
+        game.message.text,
+        canvas.width / 2,
+        120
+    );
+
+    ctx.restore();
+
+    ctx.textAlign = "left";
+}
+
+function drawRoundComplete() {
+
+    if (!game.round.finished) {
+        return;
+    }
+
+    ctx.fillStyle = "rgba(0,0,0,0.75)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const accuracy =
+        Math.round(
+            (game.round.goals / game.round.maxShots) * 100
+        );
+
+    let rating = "";
+
+    if (accuracy === 100) {
+        rating = "LEGENDARY";
+    }
+    else if (accuracy >= 90) {
+        rating = "WORLD CLASS";
+    }
+    else if (accuracy >= 80) {
+        rating = "EXCELLENT";
+    }
+    else if (accuracy >= 70) {
+        rating = "VERY GOOD";
+    }
+    else if (accuracy >= 60) {
+        rating = "GOOD";
+    }
+    else if (accuracy >= 40) {
+        rating = "DECENT";
+    }
+    else {
+        rating = "KEEP PRACTICING";
+    }
+
+    ctx.textAlign = "center";
+
+    ctx.fillStyle = "white";
+
+    ctx.font = "bold 52px Arial";
+    ctx.fillText(
+        "ROUND COMPLETE",
+        canvas.width / 2,
+        180
+    );
+
+    ctx.font = "34px Arial";
+
+    ctx.fillStyle = "#4cff4c";
+    ctx.fillText(
+        `${game.round.goals} Goals`,
+        canvas.width / 2,
+        270
+    );
+
+    ctx.fillStyle = "white";
+    ctx.fillText(
+        `${accuracy}% Accuracy`,
+        canvas.width / 2,
+        330
+    );
+
+    ctx.fillStyle = "#ffd700";
+    ctx.font = "bold 38px Arial";
+    ctx.fillText(
+        rating,
+        canvas.width / 2,
+        410
+    );
+
+    ctx.fillStyle = "#cccccc";
+    ctx.font = "24px Arial";
+    ctx.fillText(
+        "Press SPACE to play again",
+        canvas.width / 2,
+        520
+    );
+
+    ctx.textAlign = "left";
+}
+
 function render() {
     drawField();
     drawGoal();
@@ -556,4 +716,7 @@ function render() {
     drawWall();
     drawAimGuide();
     drawBall();
+    drawHUD();
+    drawMessage();
+    drawRoundComplete();
 }
