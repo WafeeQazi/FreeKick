@@ -205,20 +205,7 @@ function checkKeeperCollision() {
 
         game.score.saves++;
 
-        game.ball.velocityX = 0;
-
-        game.ball.velocityY = 0;
-
-        game.ball.velocityZ = 0;
-
-        game.ball.spin = 0;
-
-        game.ball.moving = false;
-        game.ball.canShoot = false;
-
-        setTimeout(() => {
-            resetAfterShot();
-        }, 700);
+        stopShot("save");
 
         return true;
     }
@@ -474,12 +461,9 @@ function checkGoal() {
 
     ) {
 
-        game.score.goals++;
-
         game.score.shots++;
 
-
-        stopShot();
+        stopShot("goal");
 
     }
 
@@ -538,24 +522,22 @@ function checkOutOfBounds() {
 
 }
 
-function stopShot() {
-    if (game.ball.resetting) {
+function stopShot(result = "miss") {
+
+    if (!game.ball.moving) {
         return;
     }
 
     game.ball.moving = false;
-    game.ball.resetting = true;
-
     game.ball.velocityX = 0;
     game.ball.velocityY = 0;
     game.ball.velocityZ = 0;
     game.ball.spin = 0;
-
-    game.shot.aiming = false;
-    game.shot.power = 0;
+    game.ball.canShoot = false;
 
     setTimeout(() => {
-        resetAfterShot();
-        game.ball.resetting = false;
+
+        finishAttempt(result);
+
     }, 700);
 }
