@@ -129,7 +129,81 @@ function loadRandomFreeKick() {
     resetKeeper();
 }
 
+function showMessage(text, color) {
+
+    game.message.text = text;
+    game.message.color = color;
+    game.message.timer =
+        game.message.duration;
+}
+
+function finishAttempt(result) {
+
+    if (game.round.finished) {
+        return;
+    }
+
+    switch (result) {
+
+        case "goal":
+
+            showMessage(
+                "GOAL!",
+                "#4cff4c"
+            );
+
+            game.round.goals++;
+            game.score.goals++;
+
+            break;
+
+        case "save":
+
+            showMessage(
+                "SAVED!",
+                "#4da6ff"
+            );
+
+            game.round.saves++;
+            game.score.saves++;
+
+            break;
+
+        case "miss":
+
+            showMessage(
+                "MISS!",
+                "#ff5555"
+            );
+
+            game.round.misses++;
+
+            break;
+    }
+
+    game.round.currentShot++;
+
+    if (
+        game.round.currentShot >
+        game.round.maxShots
+    ) {
+
+        game.round.finished = true;
+
+        game.ball.canShoot = false;
+
+        return;
+    }
+
+    loadRandomFreeKick();
+}
+
 function resetAfterShot() {
+
+    if (game.round.finished) {
+        return;
+    }
+
     loadRandomFreeKick();
 }
 
